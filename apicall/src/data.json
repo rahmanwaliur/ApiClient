@@ -1,0 +1,14 @@
+[
+  {
+    "jobid": 10,
+    "userid": "waliur",
+    "cohortname": "test1cohort",
+    "medcodes": ["c68710004", "c68710002", "c68710001", "c68710006", "c68710005", "c68710007"]
+  },
+  {
+    "jobid": 11,
+    "userid": "jordan",
+    "cohortname": "test2cohort",
+    "medcodes": ["c68710008", "c68710009", "c6871000?", "c6871000@", "c6871000D", "c6871000B"]
+  }
+]
