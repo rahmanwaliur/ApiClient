@@ -1,6 +1,7 @@
 __author__ = 'rahman'
-
+import logging
 import requests
+from requests import exceptions
 import json
 
 class OnavInterface:
@@ -12,11 +13,30 @@ class OnavInterface:
 
     #api call to ONav to pull list of pending jobs
     def getResponse(self):
-       #self.response = requests.get('https://github.com/timeline.json')
-       with open("src/data.json") as filename:
-           parsed_data = json.loads(filename.read())  # all parsed data requests in json format
-           self.response = parsed_data
-           return self.response
+
+        url = 'https://cru.ucalgary.ca/getpendinglist'
+        try:
+            self.response = requests.get(url)
+
+            if self.response.get('errors'):
+                logging.warn("API error response")
+                return {'request_error': 'api_error_response'}
+        except requests.exceptions.ConnectionError:
+            logging.warn('ConnectionError')
+            return {'request_error': 'ConnectionTimeout'}
+        except requests.exceptions.Timeout:
+            logging.warn('API request timed out')
+            return {'request_error': 'Timeout'}
+        except Exception, ex:
+            logging.warn("API request exception: %s", ex)
+            return {'request_error':ex}
+        else:
+            return self.response
+
+       #with open("src/data.json") as filename:
+       #    parsed_data = json.loads(filename.read())  # all parsed data requests in json format
+       #    self.response = parsed_data
+       #    return self.response
 
 
 
