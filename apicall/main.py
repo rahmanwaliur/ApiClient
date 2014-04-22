@@ -3,16 +3,19 @@ __author__ = 'rahman'
 import thread                                                               #import thread module for threading
 from src.onavinterface import OnavInterface                                 #import OnavInterface class
 from src.workflowengine import WorkFlowEngine                               #import WorkFlowEngine class
+from src.hquerygeneration import HQueryGeneration
 
 #main method
 def main():
-    interface = OnavInterface()                                             #object creation for OnavInterface class
-    engine = WorkFlowEngine()                                               #object creation for WorkFlowEngine class
 
+    interfaceObj = OnavInterface()                                             #object creation for OnavInterface class
+    engineObj = WorkFlowEngine()                                               #object creation for WorkFlowEngine class
+    hivequeryObj = HQueryGeneration()                                          #object creation for HQueryGeneration class
 
-    onavresponse = interface.getResponse()                                  #store Onav joblist in onavresponse
-    querydata = engine.parseResponse(onavresponse)                          #parse onavresponse and store querydata in raw format
-    query = engine.generateQuery(querydata)                                 #generate hive query based on querydata
+    onavresponse = interfaceObj.getResponse()                                  #store Onav joblist in onavresponse
+    querydata = engineObj.parseResponse(onavresponse)                          #parse onavresponse and store querydata in raw format
+    #query = engine.generateQuery(querydata)
+    query = hivequeryObj.generateQuery(querydata)                              #generate hive query based on querydata
     flag = 1                                                                #this flag is used to control the thrift connection
 
 
@@ -21,14 +24,14 @@ def main():
         for x in range(0,length):                                           #for each job do the following
             if length == x+1:                                               #change flag value if this is the last job
                 flag = 0
-            thread.start_new_thread(engine.processQuery,(query[x],flag))    #submit job as a thread through engine.processQuery
-            engineresponse = engine.retrieveJobID(x)                        #result(e.g. jobID) after job submission
-            interface.sendResult(engineresponse)                            #sending result back to ONav
+            thread.start_new_thread(engineObj.processQuery,(query[x],flag))    #submit job as a thread through engine.processQuery
+            engineresponse = engineObj.retrieveJobID(x)                        #result(e.g. jobID) after job submission
+            interfaceObj.sendResult(engineresponse)                            #sending result back to ONav
     else:
-        length = 0                                                          #execute if there is only one job
-        thread.start_new_thread(engine.processQuery,(query,flag))           #submit job as a thread through engine.processQuery
-        engineresponse = engine.retrieveJobID(length)                       #result(e.g. jobID) after job submission
-        interface.sendResult(engineresponse)                                #sending result back to ONav
+        length = 0                                                             #execute if there is only one job
+        thread.start_new_thread(engineObj.processQuery,(query,flag))           #submit job as a thread through engine.processQuery
+        engineresponse = engineObj.retrieveJobID(length)                       #result(e.g. jobID) after job submission
+        interfaceObj.sendResult(engineresponse)                                #sending result back to ONav
 
 
 if __name__== "__main__":

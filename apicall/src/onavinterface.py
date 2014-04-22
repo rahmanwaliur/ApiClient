@@ -3,6 +3,7 @@ import logging
 import requests
 from requests import exceptions
 import json
+from properties import ConfigProperties
 
 class OnavInterface:
     'this class requests for joblist from ONav API and communicate results after job submission'
@@ -14,9 +15,11 @@ class OnavInterface:
     #api call to ONav to pull list of pending jobs
     def getResponse(self):
 
-        url = 'https://cru.ucalgary.ca/getpendinglist'
+        propertyObj = ConfigProperties()
+        onavurl = propertyObj.apicallurl()
+
         try:
-            self.response = requests.get(url)
+            self.response = requests.get(onavurl)
 
             if self.response.get('errors'):
                 logging.warn("API error response")
@@ -33,24 +36,26 @@ class OnavInterface:
         else:
             return self.response
 
-       #with open("src/data.json") as filename:
-       #    parsed_data = json.loads(filename.read())  # all parsed data requests in json format
-       #    self.response = parsed_data
-       #    return self.response
+        # required to run the code with actual data
+        #with open("src/data.json") as filename:
+        #   parsed_data = json.loads(filename.read())  # all parsed data requests in json format
+        #   self.response = parsed_data
+        #   return self.response
 
 
 
     #api call to ONav to send hadoop jobid for corresponding ONav jobid
     def sendResult(self, allids):
-         #responsestring = {"id": parsed_job["jobid"], "jobId": jobID}
-         response = {"id": allids["onavjobid"], "jobID":allids["hadoopjobid"]}
-         print response
-         #url = 'http://localhost:8000/job/create/?'
-         # ##for key, value in responsestring.iteritems():
-         # ##    url += '%s=%s&' % (key, value)
-         # ##url = url[:-1]
-         # #self.re
-         # ##requests.get(url)
+        response = {"id": allids["onavjobid"], "jobID":allids["hadoopjobid"]}
+        #print response
+        propertyObj = ConfigProperties()
+        onavurl = propertyObj.apisendurl()
+        #url = 'http://localhost:8000/job/create/?'
+        for key, value in response.iteritems():
+            onavurl += '%s=%s&' % (key, value)
+            onavurl = onavurl[:-1]
+
+        requests.get(onavurl)
 
 
 
