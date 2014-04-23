@@ -19,6 +19,13 @@ def mock_APIresponse_for_OnavInterface_getResponse():
 def mock_ConnectionError_for_OnavInterface_getResponse():
     return requests.exceptions.ConnectionError
 
+def mock_Timeout_for_OnavInterface_getResponse():
+    return requests.exceptions.Timeout
+
+def mock_APIRequestException_for_OnavInterface_getResponse():
+    return requests.exceptions.RequestException
+
+
 class TestOnavInterface(unittest.TestCase):
 
     def setUp(self):
@@ -48,6 +55,17 @@ class TestOnavInterface(unittest.TestCase):
         response = responseObj.getResponse()
         self.assertEqual(response, {'request_error': 'ConnectionTimeout'})
 
+    def test_Timeout_in_GetResponse(self):
+        responseObj = OnavInterface()
+        requests.get = MagicMock(side_effect=mock_Timeout_for_OnavInterface_getResponse())
+        response = responseObj.getResponse()
+        self.assertEqual(response, {'request_error': 'Timeout'})
+
+    def test_RequestException_in_GetResponse(self):
+        responseObj = OnavInterface()
+        requests.get = MagicMock(side_effect=mock_APIRequestException_for_OnavInterface_getResponse())
+        response = responseObj.getResponse()
+        self.assertEqual(response, {'request_error': response.values().pop()})
 
     def test_getResponse(self):
         pass
